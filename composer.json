@@ -1,0 +1,6 @@
+{
+    "require": {
+        "khaled.alshamaa/ar-php": "^6.2",
+        "php-ai/php-ml": "^0.9.0"
+    }
+}

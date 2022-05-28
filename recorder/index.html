@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html  dir="rtl" lang="ar">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>المنصة التجريبية لتسجيل الأصوات</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+	<link rel="stylesheet" href="css/style.css">
+
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+
+	<form action="#" method="POST" enctype="multipart/form-data">
+		
+		<div class="row"  style="margin-top: 5%">
+
+			<div class="six columns">
+
+				<h3>المنصة التجريبية للتسجيل</h3>
+				 <p>يرجى تسجيل مقتطفات إملائية من خلال المنصة التجريبية التالية:</p>
+				 
+				 <div id="answer"></div>
+				 
+				<hr/>
+
+				<h4>البيانات النصية</h4>
+			   
+				
+				<!--<p>نوع المادة:</p>-->
+				<select name="type">
+					<option value="syllable">مقطع صوتي syllable</option>
+					<option value="word" selected>كلمة</option>
+					<option value="sentence">جملة</option>
+					<option value="paragraph">فقرة</option>
+				</select>
+				<br/>
+
+				<!--<p>النص:</p>-->
+				<textarea name="text" rows="4" cols="40" placeholder="الكلمة أو النص مشكول الحركات" required></textarea>
+				<br/>
+				<input name="classification" type="text" placeholder="تصنيفات: حيوان، شعر، أشياء، فاكهة" />
+				<br/>
+				
+				<select name="level">
+					<option value="-1" selected>غير محدد</option>
+					<option disabled>مستوى 0: تعلم الحروف</option>
+					<option value="1">مستوى 1: مبتدئ مهجئ للمقاطع الصوتية</option>
+					<option value="2">مستوى 2: مبتدئ كلمات بسيطة أقل من 5 أحرف</option>
+					<option value="3">مستوى 3: مبتدئ كلمات متنوعة وصيغ فعلية</option>
+					<option value="4">مستوى 4: جمل / عبارات بسيطة</option>
+					<option value="5">مستوى 5: جمل أكثر تعقيدا</option>
+					<option value="6">مستوى 6: فقرات بسيطة</option>
+					<option value="7">مستوى 7: فقرات معقدة</option>
+				</select>
+					
+			</div>
+
+			<div class="six columns">
+				<hr/>			
+				<h4>المادة الصوتية</h4>
+				  <div id="controls">
+					 <button id="recordButton" class="rg">تسجيل</button>
+					 <button style="display:none;" id="pauseButton" class="rg" disabled>إيقاف</button>
+					 <button id="stopButton" class="rg" disabled>إنهاء</button>
+				 </div>
+				<div id="formats">Format: start recording to see sample rate</div>
+				<p><strong>التسجيلات:</strong> | <a onclick="removeAllRecord();" href="#">تنظيف قائمة التسجيلات</a></p>
+				<ol id="recordingsList"></ol>
+				
+				<hr/>
+				
+				<h4>المادة الصورية (اختيارية):</h4>
+				<input id="imagefile" type="file" name="imagefile" value="" />
+			</div>
+			
+		</div>
+			
+		<hr/>
+		 <div class="row"  style="margin-top: 5%">
+			 <input type="submit" class="centric" id="uploadIt" style="font-size: 20px;letter-spacing: 0;background: #eee;" value="رفع البيانات" >
+		</div>
+		
+	</form>
+	
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  	<script src="js/jquery.min.js"></script>
+	<script src="js/recorder.js"></script>
+	<script src="js/app.js"></script>
+</body>
+
+</html>
