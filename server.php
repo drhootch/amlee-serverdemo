@@ -1,8 +1,8 @@
 <?php
 
 /* ####################################################
- *	An implementation of a basic API 
- * 
+ *	An implementation of a basic API
+ *
  * #################################################### */
 
 // Allow API headers
@@ -27,7 +27,7 @@ require_once 'GameData.php';
 /* ############################################################################ */
 
 // Example of internalization
-$i18n = [	
+$i18n = [
 	"Listen&Write" => ["ar"=>"استمع واكتب", "en"=>"Listen and write"],
 	"?" => ["ar"=>"؟", "en"=>"?"],
 	"howmuch" => ["ar"=>"كم", "en"=>"How much is"],
@@ -47,7 +47,7 @@ $i18n = [
 if(isset($_GET['getGame'])){
 
 	$game = new GameData();
-	
+
 	// IA Suggestion
 	if(isset($_GET['level']) && isset($_GET['gravity']) && isset($_GET['rule'])) { 	// get level & errors from cookie or as a $_GET from the frontend engine otherwise randomize until level is defined
 
@@ -57,13 +57,13 @@ if(isset($_GET['getGame'])){
 		$level = floatval($_GET['level']);
 		$errorFrequency = floatval($_GET['gravity']);
 		$rule = floatval($_GET['rule']);
-		
+
 		//isset($_COOKIE["track"])
 		//$level = floatval($_GET['level']);
 		//$errorFrequency = floatval($track->rules[5]["scale"]);
 		//$rules have to be linked with a fixed number, in order to be processed
 		//$rule = $track->rules[5]["category"].$track->rules[5]["id"];
-		
+
 		echo $game->suggestAGame($level, $errorFrequency, $rule); // Call IA to determine the adequate game
 	}
 
@@ -71,7 +71,7 @@ if(isset($_GET['getGame'])){
 	$lang = "ar";
 	if(isset($_GET['lang']) && in_array($_GET['lang'], array('ar', 'en')))
 		$lang = $_GET['lang'];
-		
+
 	// Foster a specific game for demo
 	if(!isset($_GET['gameid']) && !rand(0,2))
 		$_GET['gameid'] = 0;
@@ -101,9 +101,9 @@ if(isset($_GET['getGame'])){
 			"hint" => "",
 			"attempts" =>  0
 		);
-		
+
 		// Tag For image API
-		/* 
+		/*
 		if(rand(0,1)){
 			$data["imgTag"] = $entry["English"];
 			$data["img"] = "";
@@ -148,15 +148,15 @@ if(isset($_GET['getGame'])){
 	}
 	/* ***************************************************** */
 	else if($gameType == 9){ // Maths
-		
+
 		$a = rand(1,20);
 		$b = rand(1,20);
-		
+
 		$number = $game->getNumberGame(null, $a, $b);
-		
+
 		$data = array(
 			'type' => 'text_write',
-			'q' => $i18n["howmuch"][$lang].' '.$a.'+'.$b.' '.$i18n["inAr"][$lang].$i18n["?"],
+			'q' => $i18n["howmuch"][$lang].' '.$a.'+'.$b.' '.$i18n["inAr"][$lang].$i18n["?"][$lang],
 			'q2' => $number["value"],
 			"imgTag"=> "",
 			"audio" => "", // may be ""
@@ -177,10 +177,10 @@ if(isset($_GET['getGame'])){
 			["ما الماضي مِنْ (يسعى)", "سَعى", "", ""],
 			["ما الماضي مِنْ (يجري)؟", "جَرى", "", ""],
 		];
-		
-		
+
+
 		$randomRows = rand(0, count($rows)-1);
-		
+
 		$data = array(
 			'type' => 'text_write',
 			'q' => $i18n["answerQuestion"][$lang],
@@ -203,9 +203,9 @@ if(isset($_GET['getGame'])){
 			["اختر الكتابة الصحيحة", "ذِئْب", array('ذءب', 'ذأب', 'ذئب', 'ذؤب'), "", ""],
 			["اختر الكتابة الصحيحة", "رَأَيْتُكِ", array('رأيتك', 'رأيتكي'), "", ""],
 		];
-		
+
 		$randomRows = rand(0, count($rows)-1);
-		
+
 		$data = array(
 			'type' => 'single_choice',
 			'q' => $i18n["selectValidWriting"][$lang],
@@ -304,14 +304,14 @@ if(isset($_GET['getGame'])){
 	/* ***************************************************** */
 	else if($gameType == 7){
 
-		
+
 		$rows = [
 			['ذِ . ب', 'ئ', array("أ", "ئ", "ء", "ى"), "wolf.mp3", "https://cdn.pixabay.com/photo/2012/10/25/23/52/wolf-62898_960_720.jpg"],
 			["بِنـ.", "ت", array("ه", "ة", "ت", "ن"), "girl.wav", ""],
 		];
-		
+
 		$randomRows = rand(0, count($rows)-1);
-		
+
 		$data = array(
 			'type' => 'single_choice',
 			'q' => $i18n["fillGap"][$lang],
@@ -340,7 +340,7 @@ if(isset($_GET['getGame'])){
 			"attempts" =>  0,
 		);
 	}
-	
+
 	$data["gameid"] = $gameType;
 	echo json_encode($data);
 
