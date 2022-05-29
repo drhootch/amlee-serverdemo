@@ -11,7 +11,7 @@ use Phpml\Dataset\CsvDataset;
 
 class GameData {
 
-    
+
    /* -----------------------------------------------------------------------------
 	*	A function to access the data of FreeArabicDictionary.com owned by Fabienne Hadek
 	*	To which we have permission to use
@@ -19,11 +19,11 @@ class GameData {
 	
     function getFreeDictionaryData($POS = "", $pattern = "") {
 		
-		///getDictEntry($POS, $pattern);
+		return getDictEntry($POS, $pattern);
 
-		$url = 'https://amly.app/dictapi.php?query=FAD&POS='.$POS.'&pattern='.$pattern;
-		$data = (array) json_decode(file_get_contents($url));
-		return $data;
+		//$url = 'https://amly.app/dictapi.php?query=FAD&POS='.$POS.'&pattern='.$pattern;
+		//$data = (array) json_decode(file_get_contents($url));
+		//return $data;
     }
 
 
@@ -74,20 +74,18 @@ class GameData {
 	/* -----------------------------------------------------------------------------
 		Returns numbers' wording
 	----------------------------------------------------------------------------- */
-    function getNumberGame($value = null) {
+    function getNumberGame($value = null, $min = null, $max = null) {
 
 		require 'vendor/autoload.php';
 
 		if(is_null($value))
-			$value = rand(1, 1000);
+			$value = rand(is_null($min)?0:$min, is_null($max)?1000:$max);
 
 		$Arabic = new \ArPHP\I18N\Arabic();
 
 		$Arabic->setNumberFeminine(1);
 		$Arabic->setNumberFormat(1);
 		$text = $Arabic->int2str($value);
-		//echo "<center>$value<br />$text</center><hr />";
-
 
 		//$Arabic->setNumberFormat(1); // حالة النصب أو الجر
 		//$Arabic->setNumberOrder(2); // للترتيب
@@ -111,7 +109,7 @@ class GameData {
 	----------------------------------------------------------------------------- */
     function suggestAGame($level, $errorFrequency, $rule) {
 		
-		$rules = [
+		$rules = [ // Example of rules
 			"ألف مقصورة-ممددوة" => 1,
 			"ألف مقصورة-ياء" => 2,
 			"الهمزة المتطرفة" => 3,
@@ -143,17 +141,17 @@ class GameData {
 		];
 		
 		$games = [
-			"إكمال الفراغ" => 0,
-			"تحرير جملة"  => 1,
-			"تحرير كلمة"  => 2,
-			"تحرير نص"  => 3,
-			"ترتيب الحروف"  => 4,
+			"إكمال الفراغ" => 7,
+			"تحرير جملة"  => 5, //+8
+			"تحرير كلمة"  => 10, // not included yet
+			"تحرير نص"  => 9, // not included yet
+			"ترتيب الحروف"  => 6,
 			"ترتيب كلمة"  => 5,
-			"سؤال ثقافي"  => 6,
-			"سؤال مشوش"  => 7,
-			"كتابة الساعة"  => 8,
-			"كتابة عدد"  => 9,
-			"مركب معجمي" => 10,
+			"سؤال ثقافي"  => 3, //
+			"سؤال مشوش"  => 4, //
+			"كتابة الساعة"  => 1,
+			"كتابة عدد"  => 2,
+			"مركب معجمي" => 0, // a compound selection from the dictionary singuler, plural or verb in imperfective/perfective aspect
 		];
 
 
@@ -186,6 +184,8 @@ class GameData {
 		return array_search ($recommendation, $games);
 
 	}
+	
+
 	
 	
 }

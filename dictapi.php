@@ -17,24 +17,28 @@ header("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Si
 
 mb_internal_encoding("UTF-8");
 
-//~ ini_set('display_errors', 1);
-//~ ini_set('display_startup_errors', 1);
-//~ error_reporting(E_ALL & ~E_NOTICE);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL & ~E_NOTICE);
 
+require 'config.php';
 
+if(isset($_GET['query'])){
 
-if(isset($_GET['query']) && $_GET['query'] == "FAD"){
-
-	echo getDictEntry($_GET['POS']??"", $_GET['pattern']??"");
+	if($_GET['query'] == "FAD")
+		echo json_encode(getDictEntry($_GET['POS']??"", $_GET['pattern']??""));
+	else if($_GET['query'] == "amly")
+		//echo json_encode(getAmlyRecord($_GET['type']??"", $_GET['pattern']??""));
+		echo json_encode(getAmlyRecord($_GET['type']??"", $_GET['pattern']??""));
 }
 
 
 if(isset($_GET['word']) && isset($_GET['query'])){
 	
 	if($_GET['query'] == "POS"){
-		echo getAraToolsPOS($_GET['word']);
+		echo json_encode(getAraToolsPOS($_GET['word']));
 	}else if($_GET['query'] == "lemma"){
-		echo getFarasaLemma($_GET['word']);
+		echo json_encode(getFarasaLemma($_GET['word']));
 	}
 }
 		
@@ -48,8 +52,6 @@ if(isset($_GET['word']) && isset($_GET['query'])){
 function getAmlyRecord($type="", $pattern = "") {
 
 	require 'config.php';
-
-
 	$connection = new PDO( 'mysql:host='.$db_config['host'].';dbname='.$db_config['dbname'].';port='.$db_config['port'].';charset=utf8;', $db_config['username'], $db_config['password'] );
 
 	$statement = $connection->prepare("SELECT * FROM records WHERE status like 'Enabled'".
@@ -57,14 +59,13 @@ function getAmlyRecord($type="", $pattern = "") {
 		(!empty($pattern)   ? ' AND `text` regexp :pattern' : null).
 		" ORDER BY RAND() LIMIT 1");
 
+
 	if (!empty($type)) {
-		$statement->bindParam(':type', $POS);
+		$statement->bindParam(':type', $type);
 	}
 	if (!empty($pattern)) {
 		$statement->bindParam(':pattern', $pattern);
 	}
-
-	
 
 	$statement->execute();
 	$result = $statement->fetchAll();
@@ -75,29 +76,26 @@ function getAmlyRecord($type="", $pattern = "") {
 	
 	foreach($result as $row)
 	{
-
 		$data = array(
-			"audio" => 'https://amly.app/audio/fad/'.$row["Media"].'.mp3', // maybe null
+			"audio" => 'https://amly.app/audio/records/'.$row["audio"], // maybe null
 			"text" => $row["text"],
-			"img" => $row["image"],
+			"img" => $row["img"],
+			"level" => $row["level"],
 		);
 	}
 	
 	return $data;
-
 }
 
 
 /* -----------------------------------------------------------------------------
 	A function to access the data of FreeArabicDictionary.com owned by Fabienne Hadek
-	* To which we have permission to use
+	* which we have permission to use
 	----------------------------------------------------------------------------- */
 
 function getDictEntry($POS, $pattern){
 
 	require 'config.php';
-
-
 	$connection = new PDO( 'mysql:host='.$db_config['host'].';dbname='.$db_config['dbname'].';port='.$db_config['port'].';charset=utf8;', $db_config['username'], $db_config['password'] );
 
 	$statement = $connection->prepare("SELECT * FROM FreeDictionary WHERE 1".
@@ -125,12 +123,13 @@ function getDictEntry($POS, $pattern){
 	{
 
 		$data = array(
-			"audio" => 'https://amly.nbyl.me/audio/fad/'.$row["Media"].'.mp3', // maybe null
-			"text" => $row["text"],
+			"audio" => 'https://amly.app/audio/fad/'.$row["Media"].'.mp3', // maybe null
+			"text" => $row["Arabic"],
 			"en" => $row["English"],
 			"ar" => $row["Arabic"],
 			"pl" => $row["Plural"],
 			"verb" => $row["Verbform"],
+			"POS" => $row["Type"],
 		);
 		
 		if($data["pl"] != "" && $data["verb"] == ""){
@@ -143,7 +142,7 @@ function getDictEntry($POS, $pattern){
 		}
 	}
 	
-	return json_encode($data);
+	return $data;
 
 }
 
@@ -156,7 +155,7 @@ function getDictEntry($POS, $pattern){
 function getAraToolsPOS($word){
 
 	//verify that words is arabic 
-	
+	require 'config.php';
 	$url = 'http://aratools.com/dict-service?query={%22dictionary%22:%22'.'AR-EN-WORD-DICTIONARY'.'%22,%22word%22:%22'.urlencode($_GET['word']).'%22,%22dfilter%22:true}';
 	$data = file_get_contents($url);
 		
@@ -171,16 +170,19 @@ function getAraToolsPOS($word){
 	];
 
 	
-	return json_encode($return);
+	return $return;
 }
 
 /* -----------------------------------------------------------------------------
 	Get lemma of a word or a text using Farasa API
 	* Because this API is slow, we made a cache for it as our words change rarely
+	* @TODO Implement the Java binary to gain more independence
 	----------------------------------------------------------------------------- */
 
 function getFarasaLemma($text){
 	
+	require 'config.php';
+
 
 	$connection = new PDO( 'mysql:host='.$db_config['host'].';dbname='.$db_config['dbname'].';port='.$db_config['port'].';charset=utf8;', $db_config['username'], $db_config['password'] );
 
@@ -206,7 +208,7 @@ function getFarasaLemma($text){
 		$api_answer = file_get_contents( "https://farasa.qcri.org/webapi/lemmatization/?text=".urlencode($text)."&api_key=".$params['api_key']);
 
 		if($api_answer){
-			$lemmatized = (json_decode($api_return));
+			$lemmatized = (json_decode($api_answer));
 			$statement = $connection->prepare("INSERT INTO lemmatizer_cache (text, lemmatized) VALUES (:text, :lemmatized)")->execute(
 				array(
 					"text"=>$text,
@@ -217,7 +219,7 @@ function getFarasaLemma($text){
 			$api_answer = "";
 
 
-		return json_encode($api_answer);
+		return $api_answer;
 	}
 }
 
